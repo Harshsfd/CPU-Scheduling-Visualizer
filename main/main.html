@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CPU Scheduling Simulator</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous">
+        </script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous">
+        </script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous">
+        </script>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+        <script src="script.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <!-- Top Nav Bar  -->
+        <header>
+            <nav class="navbar ">
+                <span class="navbar-text" style="margin:auto; display:table;
+                    color:white">
+                    <h3> CPU Scheduling Algorithms </h3>
+                </span>
+            </nav>
+        </header>
+        <!-- Top Nav Bar END-->
+        <div class="container">
+            <!-- Div 1 -->
+            <div class="col-md-3000 border border-secondary rounded p-3 mb-2"
+                id="main">
+                <div class="col-2000 p-4 mb-6" style="margin:auto">
+                    <div class="form-group">
+                        <label for="algorithmSelector"><b>Select Scheduling
+                                Method</b></label>
+                        <select class="form-control" id="algorithmSelector">
+                            <option value="optFCFS">First Come First Served</option>
+                            <option value="optSJF">Shortest Job First</option>
+                            <option value="optSRTF">Shortest Remaining Time
+                                First</option>
+                            <option value="optRR">Round Robin</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-group-time-quantum">
+                        <label class="mt-1 ">Time Quantum :</label>
+                        <input class="form-control mb-2" type="number" min="0"
+                            max="9" id="timeQuantum">
+                    </div>
+                    <table class="table table-bordered border-secondary rounded"
+                        id="tblProcessList">
+                        <thead>
+                            <tr>
+
+                                <th scope="col"><b>Process ID</b></th>
+                                <th scope="col"><b>Arrival Time</b></th>
+                                <th scope="col"><b>Burst Time</b></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col">
+                            <input class="form-control mb-2" type="number"
+                                min="0" id="processID" placeholder="Process ID"
+                                required>
+                        </div>
+                        <div class="col">
+                            <input class="form-control mb-2" type="number"
+                                min="0" id="arrivalTime"
+                                placeholder="Arrival Time">
+                        </div>
+                        <div class="col">
+                            <input class="form-control mb-2" type="number"
+                                min="0" id="burstTime" placeholder="Burst Time">
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-success"
+                                id="btnAddProcess">Add Process</button>
+                        </div>
+
+                        <div class="col">
+                            <button class="btn btn-outline-secondary"
+                                id="resetBtn"
+                                onclick="location.reload()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Div 1 END-->
+            <!-- Div 2 -->
+            <div class="col-md-3000 " style="margin:auto">
+                <p>
+                    <div class="col-md-3000 border border-secondary rounded mb-2">
+                        <div class="table-responsive">
+                            <table class="table table-bordered rounded" id="tblResults">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"><b>Process ID</b></th>
+                                        <th scope="col"><b>Arrival Time</b></th>
+                                        <th scope="col"><b>Burst Time</b></th>
+                                        <th scope="col"><b>Completed Time</b></th>
+                                        <th scope="col"><b>Waiting Time</b></th>
+                                        <th scope="col"><b>Turnaround Time</b></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Table body content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </p>
+            </div>
+            <!-- Div 2 END-->
+            <!-- Div 3 -->
+            <div class="col-md-3000 border border-secondary rounded p-3 mb-2">
+                <div class="form">
+                    <div class="form-group">
+                        <label for="avgTurnaroundTime">Average Turnaround Time</label>
+                        <input class="form-control" id="avgTurnaroundTime"
+                            type="number" placeholder="0" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="avgTurnaroundTime">Average Waiting Time</label>
+                        <input class="form-control" id="avgWaitingTime"
+                            type="number" placeholder="0" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="avgTurnaroundTime">Throughput</label>
+                        <input class="form-control" id="throughput"
+                            type="number" placeholder="0" disabled>
+                    </div>
+                </div>
+            </div>
+            <!-- Div 3 END-->
+            <!-- Div for Gantt Chart -->
+            <div class="col-md-3000 border border-secondary rounded p-3 mb-2">
+                <p align=center> Gantt Chart Generated</p>
+                <table class="table-bordered" id="ganttChart">
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Div for btnCalculate -->
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" id="btnCalculate">Calculate</button>
+            </div>
+            <!-- Div for btnCalculate END-->
+
+        </div>
+
+        <footer class="page-footer bg-dark p-2 mt-5">
+
+            <div class="footer-copyright text-center py-4">
+                <span style="margin:auto; display:table; color:white">
+                    Operating Systems Project by:<br><a
+                        href="https://harshsfd.github.io/CodSoft-Portfolio/"
+                        target="_blank">Harsh Bhardwaj</a>
+                </span>
+            </div>
+
+        </footer>
+    </body>
