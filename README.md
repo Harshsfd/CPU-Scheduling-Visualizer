@@ -1,6 +1,6 @@
 # CPU Scheduling Visualizer
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-brightgreen)](https://your-live-demo-url.com)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-brightgreen)](https://harshsfd.github.io/CPU-Scheduling-Visualizer/)
 
 Welcome to the **CPU Scheduling Visualizer**, developed by Harsh Bhardwaj! 🚀 This interactive web application provides a hands-on experience with CPU scheduling algorithms used in operating systems. Dive into the world of scheduling with real-time visualization of algorithms like FCFS, SJF, RR, and Priority Scheduling.
 
