@@ -114,15 +114,17 @@
 
         <!-- Results -->
         <div class="card card-elevated mb-4">
-          <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <h2 class="h5 fw-bold mb-0">Results</h2>
-              <div class="btn-group">
-                <button class="btn btn-primary" id="btnCalculate">⚡ Calculate</button>
-                <button class="btn btn-success" id="btnExportCSV">📤 CSV</button>
-                <button class="btn btn-danger" id="btnExportPDF">📄 PDF</button>
-              </div>
-            </div>
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h2 class="h5 fw-bold mb-0">Results</h2>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnCalculate">Calculate</button>
+        <button class="btn btn-outline-secondary" id="btnDownloadPDF">Download PDF</button>
+        <button class="btn btn-outline-secondary" id="btnDownloadCSV">Download CSV</button>
+      </div>
+    </div>
+  </div>
+</div>
             <div class="table-responsive">
               <table class="table table-bordered" id="tblResults">
                 <thead class="table-secondary">
