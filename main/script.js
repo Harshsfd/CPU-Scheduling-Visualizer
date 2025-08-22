@@ -1,273 +1,342 @@
 /* =========================
    CPU Scheduling Simulator
-   Author: HARSHSFD
-========================= */
+   Final Script.js
+   ========================= */
 
 let processes = [];
-let editIndex = -1;
+let ganttData = [];
+let editIndex = null;
 
-// DOM elements
+/* ========== DOM Elements ========== */
 const processID = document.getElementById("processID");
 const arrivalTime = document.getElementById("arrivalTime");
 const burstTime = document.getElementById("burstTime");
 const btnAddProcess = document.getElementById("btnAddProcess");
-const tblProcessList = document.getElementById("tblProcessList").querySelector("tbody");
 const resetBtn = document.getElementById("resetBtn");
+const tblProcessList = document.querySelector("#tblProcessList tbody");
+const tblResults = document.querySelector("#tblResults tbody");
 const algorithmSelector = document.getElementById("algorithmSelector");
 const timeQuantumWrap = document.getElementById("timeQuantumWrap");
 const timeQuantumInput = document.getElementById("timeQuantum");
-
-const btnCalculate = document.getElementById("btnCalculate");
-const tblResults = document.getElementById("tblResults").querySelector("tbody");
-const ganttChart = document.getElementById("ganttChart");
-
-const avgTAT = document.getElementById("avgTurnaroundTime");
-const avgWT = document.getElementById("avgWaitingTime");
+const avgTurnaroundTime = document.getElementById("avgTurnaroundTime");
+const avgWaitingTime = document.getElementById("avgWaitingTime");
 const throughput = document.getElementById("throughput");
-
-const btnPDF = document.getElementById("btnDownloadPDF");
-const btnCSV = document.getElementById("btnDownloadCSV");
+const ganttChart = document.getElementById("ganttChart");
+const btnCalculate = document.getElementById("btnCalculate");
+const btnDownloadPDF = document.getElementById("btnDownloadPDF");
+const btnDownloadCSV = document.getElementById("btnDownloadCSV");
 const toggleTheme = document.getElementById("toggleTheme");
 
-/* =========================
-   Theme Toggle
-========================= */
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-  toggleTheme.textContent = "☀️ Light Mode";
-}
-
+/* ========== Theme Toggle ========== */
 toggleTheme.addEventListener("click", () => {
   document.body.classList.toggle("dark");
-  if (document.body.classList.contains("dark")) {
-    toggleTheme.textContent = "☀️ Light Mode";
-    localStorage.setItem("theme", "dark");
-  } else {
-    toggleTheme.textContent = "🌙 Dark Mode";
-    localStorage.setItem("theme", "light");
-  }
+  toggleTheme.textContent = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
 });
 
-/* =========================
-   Add / Update Process
-========================= */
-btnAddProcess.addEventListener("click", () => {
-  const pid = processID.value.trim();
-  const at = arrivalTime.value.trim();
-  const bt = burstTime.value.trim();
+/* ========== Show/Hide Time Quantum ========== */
+algorithmSelector.addEventListener("change", () => {
+  timeQuantumWrap.style.display = algorithmSelector.value === "optRR" ? "block" : "none";
+});
 
-  if (!pid || !at || !bt) {
-    alert("⚠️ Please fill all fields!");
+/* ========== Add / Update Process ========== */
+btnAddProcess.addEventListener("click", () => {
+  const pid = parseInt(processID.value, 10);
+  const at = parseInt(arrivalTime.value, 10);
+  const bt = parseInt(burstTime.value, 10);
+
+  if (isNaN(pid) || isNaN(at) || isNaN(bt) || bt <= 0) {
+    alert("⚠️ Enter valid values!");
+    return;
+  }
+  if (editIndex === null && processes.some(p => p.processID === pid)) {
+    alert("⚠️ Duplicate Process ID not allowed!");
     return;
   }
 
-  const proc = {
-    pid: `P${pid}`,
-    arrival: parseInt(at),
-    burst: parseInt(bt),
-  };
+  const newProcess = { processID: pid, arrivalTime: at, burstTime: bt };
 
-  if (editIndex === -1) {
-    processes.push(proc);
+  if (editIndex !== null) {
+    processes[editIndex] = newProcess;
+    editIndex = null;
   } else {
-    processes[editIndex] = proc;
-    editIndex = -1;
-    btnAddProcess.textContent = "➕ Add / Update Process";
+    processes.push(newProcess);
   }
 
-  clearInputs();
-  renderProcessTable();
-});
+  renderProcessList();
 
-function clearInputs() {
   processID.value = "";
   arrivalTime.value = "";
   burstTime.value = "";
-}
+});
 
-/* =========================
-   Render Process Table
-========================= */
-function renderProcessTable() {
-  tblProcessList.innerHTML = "";
+/* ========== Reset All ========== */
+resetBtn.addEventListener("click", () => {
+  processes = [];
+  ganttData = [];
+  editIndex = null;
+  renderProcessList();
+  tblResults.innerHTML = `<tr class="table-empty"><td colspan="6" class="text-center text-muted">Run an algorithm to see results</td></tr>`;
+  ganttChart.innerHTML = "";
+  avgTurnaroundTime.value = "";
+  avgWaitingTime.value = "";
+  throughput.value = "";
+});
 
+/* ========== Render Process List ========== */
+function renderProcessList() {
   if (processes.length === 0) {
     tblProcessList.innerHTML = `<tr class="table-empty"><td colspan="4" class="text-center text-muted">No processes yet. Add some!</td></tr>`;
     return;
   }
-
+  tblProcessList.innerHTML = "";
   processes.forEach((p, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${p.pid}</td>
-      <td>${p.arrival}</td>
-      <td>${p.burst}</td>
+      <td>P${p.processID}</td>
+      <td>${p.arrivalTime}</td>
+      <td>${p.burstTime}</td>
       <td>
         <button class="btn btn-sm btn-warning me-1" onclick="editProcess(${i})">✏️ Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteProcess(${i})">🗑 Delete</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProcess(${i})">🗑️ Delete</button>
       </td>
     `;
     tblProcessList.appendChild(tr);
   });
 }
 
-window.editProcess = function (i) {
+window.editProcess = function(i) {
   const p = processes[i];
-  processID.value = p.pid.replace("P", "");
-  arrivalTime.value = p.arrival;
-  burstTime.value = p.burst;
+  processID.value = p.processID;
+  arrivalTime.value = p.arrivalTime;
+  burstTime.value = p.burstTime;
   editIndex = i;
-  btnAddProcess.textContent = "✏️ Update Process";
 };
 
-window.deleteProcess = function (i) {
-  if (confirm("Delete this process?")) {
-    processes.splice(i, 1);
-    renderProcessTable();
-  }
+window.deleteProcess = function(i) {
+  processes.splice(i, 1);
+  renderProcessList();
 };
 
-/* =========================
-   Reset
-========================= */
-resetBtn.addEventListener("click", () => {
-  processes = [];
-  editIndex = -1;
-  renderProcessTable();
-  clearResults();
-});
-
-/* =========================
-   Algorithm Selector
-========================= */
-algorithmSelector.addEventListener("change", () => {
-  if (algorithmSelector.value === "optRR") {
-    timeQuantumWrap.style.display = "block";
-  } else {
-    timeQuantumWrap.style.display = "none";
-  }
-});
-
-/* =========================
-   Calculate (Placeholder)
-========================= */
-btnCalculate.addEventListener("click", () => {
+/* ========== Scheduling Algorithms ========== */
+function calculate() {
   if (processes.length === 0) {
-    alert("⚠️ Please add processes first!");
+    alert("⚠️ Add some processes first!");
     return;
   }
 
-  // Just for demo, sort by arrival
-  let results = processes.map((p, idx) => ({
-    ...p,
-    completion: p.arrival + p.burst + idx * 2,
-    waiting: Math.max(0, idx * 2),
-    tat: p.burst + Math.max(0, idx * 2),
-  }));
+  const algo = algorithmSelector.value;
+  const q = parseInt(timeQuantumInput.value, 10);
+  let results = [];
+
+  switch (algo) {
+    case "optFCFS": results = runFCFS(); break;
+    case "optSJF": results = runSJF(); break;
+    case "optSRTF": results = runSRTF(); break;
+    case "optRR":
+      if (isNaN(q) || q <= 0) {
+        alert("⚠️ Enter valid Time Quantum!");
+        return;
+      }
+      results = runRR(q);
+      break;
+  }
 
   renderResults(results);
-  renderGanttChart(results);
-});
-
-function clearResults() {
-  tblResults.innerHTML = `<tr class="table-empty"><td colspan="6" class="text-center text-muted">Run an algorithm to see results</td></tr>`;
-  ganttChart.innerHTML = "";
-  avgTAT.value = "";
-  avgWT.value = "";
-  throughput.value = "";
 }
 
-/* =========================
-   Render Results
-========================= */
-function renderResults(results) {
-  tblResults.innerHTML = "";
-  let totalTAT = 0, totalWT = 0;
+/* ========== FCFS ========== */
+function runFCFS() {
+  let time = 0;
+  let res = [];
+  ganttData = [];
+  const arr = [...processes].sort((a,b)=>a.arrivalTime-b.arrivalTime);
 
-  results.forEach((r, i) => {
-    totalTAT += r.tat;
-    totalWT += r.waiting;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.pid}</td>
-      <td>${r.arrival}</td>
-      <td>${r.burst}</td>
-      <td>${r.completion}</td>
-      <td>${r.waiting}</td>
-      <td>${r.tat}</td>
-    `;
+  arr.forEach(p=>{
+    if (time < p.arrivalTime) time = p.arrivalTime;
+    let start = time;
+    time += p.burstTime;
+    ganttData.push({pid:p.processID,start,end:time});
+    res.push({
+      ...p,
+      completionTime: time,
+      turnaroundTime: time - p.arrivalTime,
+      waitingTime: time - p.arrivalTime - p.burstTime
+    });
+  });
+  return res;
+}
+
+/* ========== SJF (Non-preemptive) ========== */
+function runSJF() {
+  let time = 0, res = [], gantt = [];
+  let arr = [...processes].sort((a,b)=>a.arrivalTime-b.arrivalTime);
+  ganttData = [];
+  while(arr.length){
+    let available = arr.filter(p=>p.arrivalTime<=time);
+    if (available.length===0){
+      time=arr[0].arrivalTime;
+      continue;
+    }
+    available.sort((a,b)=>a.burstTime-b.burstTime);
+    let p=available[0];
+    arr.splice(arr.indexOf(p),1);
+    let start=time;
+    time+=p.burstTime;
+    ganttData.push({pid:p.processID,start,end:time});
+    res.push({...p,completionTime:time,turnaroundTime:time-p.arrivalTime,waitingTime:time-p.arrivalTime-p.burstTime});
+  }
+  return res;
+}
+
+/* ========== SRTF (Preemptive) ========== */
+function runSRTF(){
+  let time=0,res=[],ganttDataLocal=[],remain=[...processes].map(p=>({...p,rt:p.burstTime}));
+  ganttData=[];
+  while(remain.some(p=>p.rt>0)){
+    let available=remain.filter(p=>p.arrivalTime<=time && p.rt>0);
+    if(available.length===0){time++;continue;}
+    available.sort((a,b)=>a.rt-b.rt);
+    let p=available[0];
+    let start=time;
+    time++;
+    p.rt--;
+    if(p.rt===0){
+      p.completionTime=time;
+      p.turnaroundTime=time-p.arrivalTime;
+      p.waitingTime=p.turnaroundTime-p.burstTime;
+      res.push(p);
+    }
+    let last=ganttData[ganttData.length-1];
+    if(last && last.pid===p.processID) last.end=time;
+    else ganttData.push({pid:p.processID,start,end:time});
+  }
+  return res;
+}
+
+/* ========== Round Robin ========== */
+function runRR(q){
+  let time=0,res=[],queue=[],remain=[...processes].map(p=>({...p,rt:p.burstTime}));
+  ganttData=[];
+  remain.sort((a,b)=>a.arrivalTime-b.arrivalTime);
+  queue.push(remain[0]);
+  let i=1;
+  while(queue.length){
+    let p=queue.shift();
+    if(time<p.arrivalTime){time=p.arrivalTime;}
+    let exec=Math.min(q,p.rt);
+    ganttData.push({pid:p.processID,start:time,end:time+exec});
+    time+=exec;
+    p.rt-=exec;
+    if(p.rt>0){
+      while(i<remain.length && remain[i].arrivalTime<=time){
+        queue.push(remain[i]); i++;
+      }
+      queue.push(p);
+    }else{
+      p.completionTime=time;
+      p.turnaroundTime=time-p.arrivalTime;
+      p.waitingTime=p.turnaroundTime-p.burstTime;
+      res.push(p);
+    }
+    while(i<remain.length && remain[i].arrivalTime<=time){
+      queue.push(remain[i]); i++;
+    }
+  }
+  return res;
+}
+
+/* ========== Render Results ========== */
+function renderResults(results){
+  if(results.length===0)return;
+  tblResults.innerHTML="";
+  let totalTAT=0,totalWT=0;
+  results.forEach(p=>{
+    totalTAT+=p.turnaroundTime; totalWT+=p.waitingTime;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>P${p.processID}</td>
+      <td>${p.arrivalTime}</td>
+      <td>${p.burstTime}</td>
+      <td>${p.completionTime}</td>
+      <td>${p.waitingTime}</td>
+      <td>${p.turnaroundTime}</td>`;
     tblResults.appendChild(tr);
   });
+  avgTurnaroundTime.value=(totalTAT/results.length).toFixed(2);
+  avgWaitingTime.value=(totalWT/results.length).toFixed(2);
+  throughput.value=(results.length/Math.max(...results.map(p=>p.completionTime))).toFixed(2);
 
-  avgTAT.value = (totalTAT / results.length).toFixed(2);
-  avgWT.value = (totalWT / results.length).toFixed(2);
-  throughput.value = (results.length / results[results.length - 1].completion).toFixed(2);
+  renderGantt();
 }
 
-/* =========================
-   Gantt Chart
-========================= */
-function renderGanttChart(results) {
-  ganttChart.innerHTML = "";
-  results.forEach((r, i) => {
-    const div = document.createElement("div");
-    div.className = `gantt-block color-${i % 8}`;
-    div.innerHTML = `${r.pid}<small>${r.completion}</small>`;
+/* ========== Render Gantt Chart ========== */
+function renderGantt(){
+  ganttChart.innerHTML="";
+  ganttData.forEach((b,i)=>{
+    const div=document.createElement("div");
+    div.className=`gantt-block color-${b.pid%8}`;
+    div.dataset.pid=`P${b.pid}`;
+    div.dataset.start=b.start;
+    div.dataset.end=b.end;
+    div.innerHTML=`P${b.pid}<small>${b.start}-${b.end}</small>`;
     ganttChart.appendChild(div);
-
-    setTimeout(() => { div.style.opacity = 1; div.style.transform = "translateY(0)"; }, 100 * i);
+    setTimeout(()=>div.style.opacity=1,30*i);
   });
 }
 
-/* =========================
-   Download PDF
-========================= */
-btnPDF.addEventListener("click", () => {
-  if (tblResults.querySelectorAll("tr").length <= 1) {
-    alert("⚠️ Please calculate results first!");
-    return;
-  }
-
+/* ========== Download PDF ========== */
+btnDownloadPDF.addEventListener("click", async ()=>{
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   doc.setFontSize(16);
-  doc.text("CPU Scheduling Results", 14, 15);
+  doc.text("CPU Scheduling Results",14,20);
 
-  doc.autoTable({ html: "#tblResults", startY: 25 });
+  doc.autoTable({ html:"#tblResults", startY:30 });
 
-  doc.text(`Avg Turnaround Time: ${avgTAT.value}`, 14, doc.lastAutoTable.finalY + 10);
-  doc.text(`Avg Waiting Time: ${avgWT.value}`, 14, doc.lastAutoTable.finalY + 20);
-  doc.text(`Throughput: ${throughput.value}`, 14, doc.lastAutoTable.finalY + 30);
+  // Capture gantt
+  const canvas = await html2canvas(ganttChart);
+  const imgData = canvas.toDataURL("image/png");
+  doc.addPage();
+  doc.text("Gantt Chart",14,20);
+  doc.addImage(imgData,"PNG",15,30,180,60);
 
-  doc.textWithLink("Generated by HARSHSFD", 14, doc.lastAutoTable.finalY + 45, {
-    url: "https://www.linkedin.com/in/harshsfd",
-  });
+  // Metrics
+  doc.addPage();
+  doc.text(`Avg TAT: ${avgTurnaroundTime.value}`,14,30);
+  doc.text(`Avg WT: ${avgWaitingTime.value}`,14,40);
+  doc.text(`Throughput: ${throughput.value}`,14,50);
+
+  // Footer
+  doc.setFontSize(10);
+  doc.textWithLink("By Harshsfd",14,280,{url:"https://www.linkedin.com/in/harshsfd"});
 
   doc.save("results.pdf");
 });
 
-/* =========================
-   Download CSV
-========================= */
-btnCSV.addEventListener("click", () => {
-  if (tblResults.querySelectorAll("tr").length <= 1) {
-    alert("⚠️ Please calculate results first!");
-    return;
-  }
-
-  let csv = "Process ID,Arrival,Burst,Completion,Waiting,TAT\n";
-  [...tblResults.querySelectorAll("tr")].forEach(row => {
-    let cols = row.querySelectorAll("td");
-    if (cols.length) {
-      csv += [...cols].map(c => c.innerText).join(",") + "\n";
-    }
+/* ========== Download CSV ========== */
+btnDownloadCSV.addEventListener("click", ()=>{
+  if(processes.length===0)return;
+  let csv="Process ID,Arrival Time,Burst Time,Completion Time,Waiting Time,Turnaround Time\n";
+  Array.from(tblResults.querySelectorAll("tr")).forEach(tr=>{
+    let cols=tr.querySelectorAll("td");
+    if(cols.length) csv+=[...cols].map(c=>c.innerText).join(",")+"\n";
   });
-  csv += `\nAvg TAT,${avgTAT.value}\nAvg WT,${avgWT.value}\nThroughput,${throughput.value}\nGenerated by,https://www.linkedin.com/in/harshsfd`;
+  csv+=`\nAverage TAT,${avgTurnaroundTime.value}`;
+  csv+=`\nAverage WT,${avgWaitingTime.value}`;
+  csv+=`\nThroughput,${throughput.value}`;
 
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "results.csv";
-  a.click();
+  let order=[];
+  ganttData.forEach(b=>{order.push(`P${b.pid} (${b.start}-${b.end})`);});
+  csv+=`\nGantt Chart,"${order.join(", ")}"`;
+  csv+=`\nCreated By,Harshsfd (https://www.linkedin.com/in/harshsfd)`;
+
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(blob);
+  link.download="results.csv";
+  link.click();
 });
+
+/* ========== Calculate Button ========== */
+btnCalculate.addEventListener("click", calculate);
