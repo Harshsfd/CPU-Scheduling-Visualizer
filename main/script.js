@@ -33,26 +33,40 @@
 
   // Add process
   btnAddProcess.addEventListener("click", () => {
-    const pid = parseInt(processID.value, 10);
-    const at = parseInt(arrivalTime.value, 10);
-    const bt = parseInt(burstTime.value, 10);
+  const pid = parseInt(processID.value, 10);
+  const at = parseInt(arrivalTime.value, 10);
+  let bt = parseInt(burstTime.value, 10);
 
-    if (isNaN(pid) || isNaN(at) || isNaN(bt) || bt <= 0) {
-      alert("⚠️ Enter valid values!");
-      return;
-    }
-    if (processes.some(p => p.processID === pid)) {
-      alert("⚠️ Duplicate Process ID not allowed!");
-      return;
-    }
+  // ✅ Validation
+  if (isNaN(pid)) {
+    alert("⚠️ Please enter a valid Process ID.");
+    return;
+  }
+  if (isNaN(at)) {
+    alert("⚠️ Please enter a valid Arrival Time.");
+    return;
+  }
+  if (isNaN(bt) || bt <= 0) {
+    // अगर Burst Time खाली या 0 है तो default 1
+    bt = 1;
+    alert("⚠️ Burst Time was empty/invalid. Defaulting to 1.");
+  }
 
-    processes.push({ processID: pid, arrivalTime: at, burstTime: bt });
-    renderProcessList();
+  // ✅ Duplicate check
+  if (processes.some(p => p.processID === pid)) {
+    alert("⚠️ Duplicate Process ID not allowed!");
+    return;
+  }
 
-    processID.value = "";
-    arrivalTime.value = "";
-    burstTime.value = "";
-  });
+  // ✅ Add process
+  processes.push({ processID: pid, arrivalTime: at, burstTime: bt });
+  renderProcessList();
+
+  // ✅ Clear input fields
+  processID.value = "";
+  arrivalTime.value = "";
+  burstTime.value = "";
+});
 
   // Reset
   resetBtn.addEventListener("click", () => {
