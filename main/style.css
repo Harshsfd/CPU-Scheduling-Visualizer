@@ -23,8 +23,8 @@
 /* Dark mode tokens */
 body.dark{
   --bg: #0b1020;
-  --card: #121931;
-  --text: #e5e7eb;
+  --card: white;
+  --text: white;
   --muted:#a5adbb;
   --primary:#60a5fa;
   --primary-600:#3b82f6;
