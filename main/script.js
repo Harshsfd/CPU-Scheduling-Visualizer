@@ -12,11 +12,11 @@ const timeQuantum = document.getElementById("timeQuantum");
 const btnAddProcess = document.getElementById("btnAddProcess");
 const btnCalculate = document.getElementById("btnCalculate");
 const resetBtn = document.getElementById("resetBtn");
-const toggleTheme = document.getElementById("toggleTheme");
+const toggleTheme = document.getElementById("toggleTheme"); // Dark Mode button
 const btnExportCSV = document.getElementById("btnExportCSV");
 const btnExportPDF = document.getElementById("btnExportPDF");
 
-// Table
+// Tables
 const tblProcessList = document.querySelector("#tblProcessList tbody");
 const tblResults = document.querySelector("#tblResults tbody");
 const ganttChart = document.getElementById("ganttChart");
@@ -26,7 +26,7 @@ const avgTurnaroundTime = document.getElementById("avgTurnaroundTime");
 const avgWaitingTime = document.getElementById("avgWaitingTime");
 const throughput = document.getElementById("throughput");
 
-let editIndex = -1; // track editing process
+let editIndex = -1; // to track which process is being edited
 
 // 🎯 Render Process List
 function renderProcessList() {
@@ -38,8 +38,8 @@ function renderProcessList() {
         <td>${p.arrivalTime}</td>
         <td>${p.burstTime}</td>
         <td>
-          <button class="btn btn-warning btn-sm" onclick="editProcess(${index})">✏️ Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="removeProcess(${index})">❌ Delete</button>
+          <button class="btn btn-sm btn-warning" onclick="editProcess(${index})">✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="removeProcess(${index})">❌ Delete</button>
         </td>
       </tr>`;
   });
@@ -91,7 +91,7 @@ function removeProcess(index) {
   renderProcessList();
 }
 
-// 🔄 Reset
+// 🔄 Reset Everything
 resetBtn.addEventListener("click", () => {
   processes = [];
   ganttChartData = [];
@@ -103,10 +103,10 @@ resetBtn.addEventListener("click", () => {
   throughput.value = 0;
 });
 
-// 🎨 Generate Gantt Chart
+// 🎨 Render Gantt Chart
 function renderGanttChart() {
   ganttChart.innerHTML = "";
-  ganttChartData.forEach((g, i) => {
+  ganttChartData.forEach(g => {
     const block = document.createElement("div");
     block.className = `gantt-block color-${g.processID % 8}`;
     block.innerHTML = `P${g.processID}<small>${g.start}-${g.end}</small>`;
@@ -114,7 +114,7 @@ function renderGanttChart() {
   });
 }
 
-// 📊 Calculate Button
+// 📊 Calculate Scheduling
 btnCalculate.addEventListener("click", () => {
   if (processes.length === 0) {
     alert("⚠️ Add at least one process!");
@@ -268,31 +268,37 @@ function rr(q) {
 }
 
 // 🌙 Dark Mode
-toggleTheme.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  toggleTheme.innerText = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
-});
+if (toggleTheme) {
+  toggleTheme.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    toggleTheme.innerText = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+  });
+}
 
 // 📤 Export CSV
-btnExportCSV.addEventListener("click", () => {
-  let csv = "ProcessID,ArrivalTime,BurstTime,CompletionTime,WaitingTime,TurnaroundTime\n";
-  [...tblResults.rows].forEach(row => {
-    let cols = [...row.cells].map(cell => cell.innerText);
-    csv += cols.join(",") + "\n";
+if (btnExportCSV) {
+  btnExportCSV.addEventListener("click", () => {
+    let csv = "ProcessID,ArrivalTime,BurstTime,CompletionTime,WaitingTime,TurnaroundTime\n";
+    [...tblResults.rows].forEach(row => {
+      let cols = [...row.cells].map(cell => cell.innerText);
+      csv += cols.join(",") + "\n";
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.csv";
+    a.click();
   });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "results.csv";
-  a.click();
-});
+}
 
-// 📤 Export PDF
-btnExportPDF.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("CPU Scheduling Results", 10, 10);
-  doc.autoTable({ html: "#tblResults", startY: 20 });
-  doc.save("results.pdf");
-});
+// 📤 Export PDF (need jspdf + autotable script in HTML)
+if (btnExportPDF) {
+  btnExportPDF.addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("CPU Scheduling Results", 10, 10);
+    doc.autoTable({ html: "#tblResults", startY: 20 });
+    doc.save("results.pdf");
+  });
+}
