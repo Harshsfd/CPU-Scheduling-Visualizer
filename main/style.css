@@ -1,80 +1,131 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;700&display=swap');
 
-:root{
-  --brand:#2563eb;
-  --brand-2:#0ea5e9;
-  --ok:#16a34a;
-  --danger:#dc2626;
-  --ink:#0f172a;
-  --muted:#64748b;
-  --card:#ffffff;
-  --table-head:#e2e8f0;
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #f8f9fa;
+  transition: background 0.3s, color 0.3s;
 }
 
-*{box-sizing:border-box}
-body{
-  background:#f1f5f9;
-  color:var(--ink);
-  font-family:'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+h3, h5, label {
+  font-weight: 700;
 }
 
-.bg-gradient{
-  background:linear-gradient(90deg, var(--brand) 0%, #1d4ed8 50%, var(--brand-2) 100%);
+.card {
+  border-radius: 12px;
 }
 
-.card-elevated{
-  border:0;
-  border-radius: 1rem;
-  box-shadow: 0 18px 45px rgba(2,6,23,.12);
+.table {
+  font-size: 0.95rem;
 }
 
-table{
-  border-radius:.75rem;
-  overflow:hidden;
+.table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.15);
 }
 
-#btnCalculate{ font-weight:800 }
+#btnCalculate {
+  font-weight: 700;
+  font-size: 20px;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
 
-/* Gantt chart */
-.gantt{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding:8px;
-  border-radius:.75rem;
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  min-height:62px;
+#btnCalculate:hover {
+  background-color: #1f6fb2;
+  transform: translateY(-2px);
 }
-.gantt .block{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:.6rem;
-  border:1px solid rgba(2,6,23,.1);
-  padding:.3rem .5rem;
-  white-space:nowrap;
-  font-weight:800;
-  position:relative;
-}
-.gantt .block .tick{
-  position:absolute;
-  bottom:-1.4rem;
-  right:0;
-  font-size:.8rem;
-  color:var(--muted);
-}
-/* basic color palette for blocks */
-.block.c1{ background:#dbeafe}
-.block.c2{ background:#dcfce7}
-.block.c3{ background:#fee2e2}
-.block.c4{ background:#fde68a}
-.block.c5{ background:#e9d5ff}
-.block.c6{ background:#bae6fd}
-.block.c7{ background:#fbcfe8}
-.block.c8{ background:#bbf7d0}
 
-/* Responsive tweaks */
-@media (max-width: 576px){
-  .gantt{ min-height:54px }
+#resetBtn {
+  font-size: 16px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+}
+
+#ganttChart {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-top: 15px;
+}
+
+.gantt-block {
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+}
+
+.gantt-block small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* 🎨 Random colors for processes */
+.color-0 { background: #2980b9; }
+.color-1 { background: #27ae60; }
+.color-2 { background: #8e44ad; }
+.color-3 { background: #d35400; }
+.color-4 { background: #16a085; }
+.color-5 { background: #c0392b; }
+.color-6 { background: #f39c12; }
+.color-7 { background: #2c3e50; }
+
+/* 🔄 Dark Mode */
+body.dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+body.dark .card {
+  background: #1f1f1f;
+  color: #e0e0e0;
+}
+
+body.dark .navbar {
+  background: #222 !important;
+}
+
+body.dark .table {
+  color: #e0e0e0;
+}
+
+body.dark #btnCalculate {
+  background-color: #3498db;
+}
+
+body.dark .page-footer {
+  background-color: #000;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  #btnCalculate {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .gantt-block {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  #btnCalculate, #resetBtn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .gantt-block {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
 }
