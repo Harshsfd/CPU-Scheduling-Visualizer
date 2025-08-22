@@ -22,19 +22,23 @@
       color: #fff;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .container {
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      width: 95%;
+      margin: 40px auto;
+      padding: 25px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.3);
     }
 
     #logo {
-      max-width: 100%;
+      max-width: 160px;
       height: auto;
       display: block;
       margin: 0 auto 20px;
@@ -43,16 +47,14 @@
     h1 {
       font-weight: 700;
       font-size: 2.2rem;
-      margin-top: 20px;
-      margin-bottom: 30px;
+      margin: 20px 0 30px;
       text-align: center;
-      color: black;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      color: #222;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     table {
       width: 100%;
-      background-color: #3498db;
       border-radius: 8px;
       overflow: hidden;
       margin-bottom: 20px;
@@ -60,7 +62,7 @@
 
     table td,
     table th {
-      padding: 10px;
+      padding: 12px;
       text-align: center;
       font-size: 1rem;
       color: #fff;
@@ -71,24 +73,30 @@
       font-weight: 700;
     }
 
+    table td {
+      background-color: #3498db;
+    }
+
     .btn-primary {
       background-color: #27ae60;
       border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 12px 28px;
+      border-radius: 8px;
       font-size: 1rem;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: 0.3s ease-in-out;
     }
 
     .btn-primary:hover {
       background-color: #219653;
+      transform: scale(1.05);
     }
 
     footer {
-      margin-top: 30px;
+      margin-top: auto;
+      padding: 20px 10px;
       text-align: center;
       color: #fff;
     }
@@ -100,10 +108,10 @@
 
     footer a:hover {
       text-decoration: underline;
-      color: #ffffff;
+      color: #f1f1f1;
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: 768px) {
       h1 {
         font-size: 1.8rem;
       }
@@ -116,6 +124,31 @@
 
       .btn-primary {
         font-size: 0.9rem;
+        padding: 10px 20px;
+      }
+
+      #logo {
+        max-width: 120px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      table td,
+      table th {
+        font-size: 0.85rem;
+        padding: 6px;
+      }
+
+      .btn-primary {
+        font-size: 0.85rem;
         padding: 8px 16px;
       }
     }
@@ -142,7 +175,7 @@
         <tbody>
           <tr>
             <td>Harsh Bhardwaj</td>
-            <td>6TH</td>
+            <td>6th</td>
             <td>87225106</td>
             <td>2021217473</td>
           </tr>
@@ -156,11 +189,10 @@
   </div>
 
   <footer>
-    <a href="#" target="_blank">
+    <a href="https://www.linkedin.com/in/harshsfd" target="_blank">
       <h4>HARSHSFD</h4>
     </a>
   </footer>
 
 </body>
-
 </html>
