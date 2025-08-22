@@ -1,314 +1,138 @@
-// CPU Scheduling Simulator - Improved
-// Algorithms: FCFS, SJF, SRTF, RR
-// Author: Harsh Bhardwaj (UI refined)
-
 (function () {
   "use strict";
 
-  // ---------- DOM Helpers ----------
+  // Helper functions
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs);
 
-  // ---------- State ----------
-  const state = {
-    processList: [],
-    originProcessList: []
-  };
-
-  // ---------- Elements ----------
-  const algorithmSelector = $("#algorithmSelector");
-  const timeQuantumWrap = $("#timeQuantumWrap");
-  const timeQuantum = $("#timeQuantum");
+  // Elements
   const processID = $("#processID");
   const arrivalTime = $("#arrivalTime");
   const burstTime = $("#burstTime");
   const btnAddProcess = $("#btnAddProcess");
   const resetBtn = $("#resetBtn");
-  const btnCalculate = $("#btnCalculate");
+  const algorithmSelector = $("#algorithmSelector");
+  const timeQuantum = $("#timeQuantum");
+  const timeQuantumWrap = $("#timeQuantumWrap");
+
   const tblProcessListBody = $("#tblProcessList tbody");
   const tblResultsBody = $("#tblResults tbody");
   const avgTAT = $("#avgTurnaroundTime");
   const avgWT = $("#avgWaitingTime");
   const throughput = $("#throughput");
   const ganttChart = $("#ganttChart");
+  const btnCalculate = $("#btnCalculate");
 
-  // ---------- Initialization ----------
+  // State
+  let processes = [];
+
+  // Show/hide Time Quantum input
   algorithmSelector.addEventListener("change", () => {
     timeQuantumWrap.style.display = algorithmSelector.value === "optRR" ? "block" : "none";
   });
 
-  [processID, arrivalTime, burstTime, timeQuantum].forEach(inp => {
-    inp.addEventListener("input", () => inp.classList.remove("is-invalid"));
-  });
-
+  // Add process
   btnAddProcess.addEventListener("click", () => {
     const pid = parseInt(processID.value, 10);
     const at = parseInt(arrivalTime.value, 10);
     const bt = parseInt(burstTime.value, 10);
 
-    // validation
-    if (Number.isNaN(pid) || Number.isNaN(at) || Number.isNaN(bt) || bt <= 0) {
-      [processID, arrivalTime, burstTime].forEach(el => {
-        if (!el.value || (el === burstTime && bt <= 0)) el.classList.add("is-invalid");
-      });
+    if (isNaN(pid) || isNaN(at) || isNaN(bt) || bt <= 0) {
+      alert("⚠️ Enter valid values!");
+      return;
+    }
+    if (processes.some(p => p.processID === pid)) {
+      alert("⚠️ Duplicate Process ID not allowed!");
       return;
     }
 
-    // prevent duplicate process IDs
-    if (state.processList.some(p => p.processID === pid)) {
-      processID.classList.add("is-invalid");
-      return;
-    }
-
-    const process = { processID: pid, arrivalTime: at, burstTime: bt };
-    state.processList.push({ ...process });
-    state.originProcessList.push({ ...process });
-    renderProcessTable();
+    processes.push({ processID: pid, arrivalTime: at, burstTime: bt });
+    renderProcessList();
 
     processID.value = "";
     arrivalTime.value = "";
     burstTime.value = "";
   });
 
-  resetBtn.addEventListener("click", fullReset);
+  // Reset
+  resetBtn.addEventListener("click", () => {
+    processes = [];
+    renderProcessList();
+    clearOutputs();
+  });
 
+  // Calculate
   btnCalculate.addEventListener("click", () => {
-    if (state.processList.length === 0) {
-      alert("Please insert some processes first.");
+    if (processes.length === 0) {
+      alert("⚠️ Add processes first!");
       return;
     }
+
     clearOutputs();
 
     const algo = algorithmSelector.value;
-    let result = null;
-
-    switch (algo) {
-      case "optFCFS": result = runFCFS(copyList(state.processList)); break;
-      case "optSJF": result = runSJF(copyList(state.processList)); break;
-      case "optSRTF": result = runSRTF(copyList(state.processList)); break;
-      case "optRR":
-        if (!timeQuantum.value || parseInt(timeQuantum.value, 10) <= 0) {
-          timeQuantum.classList.add("is-invalid");
-          alert("Please enter a valid Time Quantum (>0).");
-          return;
-        }
-        result = runRR(copyList(state.processList), parseInt(timeQuantum.value, 10));
-        break;
-      default: return;
+    let result;
+    if (algo === "optFCFS") result = runFCFS(copy(processes));
+    else if (algo === "optSJF") result = runSJF(copy(processes));
+    else if (algo === "optSRTF") result = runSRTF(copy(processes));
+    else if (algo === "optRR") {
+      const tq = parseInt(timeQuantum.value, 10);
+      if (!tq || tq <= 0) { alert("⚠️ Enter valid Time Quantum"); return; }
+      result = runRR(copy(processes), tq);
     }
 
-    renderResultsTable(result.completed);
+    renderResults(result.completed);
     renderGantt(result.timeline);
     renderMetrics(result.completed);
   });
 
-  // ---------- Reset ----------
-  function fullReset() {
-    state.processList = [];
-    state.originProcessList = [];
-    [processID, arrivalTime, burstTime, timeQuantum].forEach(i => i.value = "");
-    renderProcessTable();
-    clearOutputs();
-  }
-
-  function renderProcessTable() {
+  // --- Rendering functions ---
+  function renderProcessList() {
     tblProcessListBody.innerHTML = "";
-    if (state.processList.length === 0) {
-      const tr = create("tr", { className: "table-empty" });
-      const td = create("td", { colSpan: 3, className: "text-center text-muted", innerText: "No processes yet. Add some!" });
-      tr.appendChild(td);
-      tblProcessListBody.appendChild(tr);
+    if (processes.length === 0) {
+      tblProcessListBody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No processes yet</td></tr>`;
       return;
     }
-    state.processList
+    processes
       .slice()
-      .sort((a, b) => a.arrivalTime === b.arrivalTime ? a.processID - b.processID : a.arrivalTime - b.arrivalTime)
+      .sort((a, b) => a.arrivalTime - b.arrivalTime || a.processID - b.processID)
       .forEach(p => {
         const tr = create("tr");
-        tr.appendChild(create("td", { innerText: p.processID }));
-        tr.appendChild(create("td", { innerText: p.arrivalTime }));
-        tr.appendChild(create("td", { innerText: p.burstTime }));
+        tr.innerHTML = `<td>P${p.processID}</td><td>${p.arrivalTime}</td><td>${p.burstTime}</td>`;
         tblProcessListBody.appendChild(tr);
       });
   }
 
-  function clearOutputs() {
-    tblResultsBody.innerHTML = '<tr class="table-empty"><td colspan="6" class="text-center text-muted">Run an algorithm to see results</td></tr>';
-    ganttChart.innerHTML = "";
-    [avgTAT, avgWT, throughput].forEach(i => i.value = "");
-  }
-
-  // ---------- Scheduling Algorithms ----------
-  // FCFS
-  function runFCFS(list) {
-    list.sort((a, b) => a.arrivalTime - b.arrivalTime || a.processID - b.processID);
-    const completed = [];
-    const timeline = [];
-    let time = 0;
-    for (const p of list) {
-      if (time < p.arrivalTime) time = p.arrivalTime;
-      const start = time;
-      time += p.burstTime;
-      const end = time;
-      completed.push({
-        ...p,
-        completedTime: end,
-        turnAroundTime: end - p.arrivalTime,
-        waitingTime: (end - p.arrivalTime) - p.burstTime
-      });
-      timeline.push({ pid: p.processID, start, end });
-    }
-    return { completed, timeline };
-  }
-
-  // SJF (Non-preemptive)
-  function runSJF(list) {
-    const completed = [];
-    const timeline = [];
-    let time = 0;
-    const ready = [];
-    list.sort((a, b) => a.arrivalTime - b.arrivalTime);
-
-    while (list.length > 0 || ready.length > 0) {
-      while (list.length > 0 && list[0].arrivalTime <= time) ready.push(list.shift());
-      if (ready.length === 0) { time = list[0].arrivalTime; continue; }
-      ready.sort((a, b) => a.burstTime - b.burstTime || a.processID - b.processID);
-      const p = ready.shift();
-      const start = time;
-      time += p.burstTime;
-      const end = time;
-      completed.push({
-        ...p,
-        completedTime: end,
-        turnAroundTime: end - p.arrivalTime,
-        waitingTime: (end - p.arrivalTime) - p.burstTime
-      });
-      timeline.push({ pid: p.processID, start, end });
-    }
-    return { completed, timeline };
-  }
-
-  // SRTF (Preemptive)
-  function runSRTF(list) {
-    const completed = [];
-    const timeline = [];
-    let time = 0;
-    const ready = [];
-    const remaining = list.map(p => ({ ...p, remaining: p.burstTime }));
-    remaining.sort((a, b) => a.arrivalTime - b.arrivalTime);
-    let current = null;
-    let lastSwitchTime = 0;
-
-    while (remaining.length > 0 || ready.length > 0 || current) {
-      while (remaining.length > 0 && remaining[0].arrivalTime <= time) ready.push(remaining.shift());
-      if (!current) {
-        if (ready.length === 0) { time = remaining[0].arrivalTime; continue; }
-        ready.sort((a, b) => a.remaining - b.remaining || a.processID - b.processID);
-        current = ready.shift(); lastSwitchTime = time;
-      }
-      current.remaining--; time++;
-
-      if (current.remaining === 0) {
-        timeline.push({ pid: current.processID, start: lastSwitchTime, end: time });
-        completed.push({
-          processID: current.processID,
-          arrivalTime: current.arrivalTime,
-          burstTime: current.burstTime,
-          completedTime: time,
-          turnAroundTime: time - current.arrivalTime,
-          waitingTime: (time - current.arrivalTime) - current.burstTime
-        });
-        current = null;
-      } else {
-        const shortest = ready.slice().sort((a, b) => a.remaining - b.remaining)[0];
-        if (shortest && shortest.remaining < current.remaining) {
-          timeline.push({ pid: current.processID, start: lastSwitchTime, end: time });
-          ready.push(current);
-          current = null;
-        }
-      }
-      lastSwitchTime = time;
-    }
-    return { completed, timeline: mergeTimeline(timeline) };
-  }
-
-  // Round Robin
-  function runRR(list, tq) {
-    const completed = [];
-    const timeline = [];
-    let time = 0;
-    const remaining = list.map(p => ({ ...p, remaining: p.burstTime }));
-    remaining.sort((a, b) => a.arrivalTime - b.arrivalTime);
-    const ready = [];
-
-    while (remaining.length > 0 || ready.length > 0) {
-      while (remaining.length > 0 && remaining[0].arrivalTime <= time) ready.push(remaining.shift());
-      if (ready.length === 0) { time = remaining[0].arrivalTime; continue; }
-      const p = ready.shift();
-      const exec = Math.min(tq, p.remaining);
-      const start = time;
-      time += exec;
-      const end = time;
-      p.remaining -= exec;
-
-      while (remaining.length > 0 && remaining[0].arrivalTime <= time) ready.push(remaining.shift());
-      timeline.push({ pid: p.processID, start, end });
-
-      if (p.remaining === 0) {
-        completed.push({
-          processID: p.processID,
-          arrivalTime: p.arrivalTime,
-          burstTime: p.burstTime,
-          completedTime: end,
-          turnAroundTime: end - p.arrivalTime,
-          waitingTime: (end - p.arrivalTime) - p.burstTime
-        });
-      } else ready.push(p);
-    }
-    return { completed, timeline: mergeTimeline(timeline) };
-  }
-
-  // ---------- Rendering ----------
-  function renderResultsTable(completed) {
+  function renderResults(completed) {
     tblResultsBody.innerHTML = "";
-    if (completed.length === 0) {
-      const tr = create("tr", { className: "table-empty" });
-      tr.appendChild(create("td", { colSpan: 6, className: "text-center text-muted", innerText: "No results" }));
-      tblResultsBody.appendChild(tr);
-      return;
-    }
-    completed.sort((a, b) => a.processID - b.processID).forEach(p => {
+    completed.forEach(p => {
       const tr = create("tr");
-      ["processID", "arrivalTime", "burstTime", "completedTime", "waitingTime", "turnAroundTime"].forEach(k => {
-        tr.appendChild(create("td", { innerText: p[k] }));
-      });
+      tr.innerHTML = `
+        <td>P${p.processID}</td>
+        <td>${p.arrivalTime}</td>
+        <td>${p.burstTime}</td>
+        <td>${p.completedTime}</td>
+        <td>${p.waitingTime}</td>
+        <td>${p.turnAroundTime}</td>`;
       tblResultsBody.appendChild(tr);
     });
   }
 
   function renderGantt(timeline) {
     ganttChart.innerHTML = "";
-    if (timeline.length === 0) return;
-
-    const colorMap = new Map();
-    let idx = 1;
-    const colorFor = pid => {
-      if (!colorMap.has(pid)) { colorMap.set(pid, "c" + ((idx - 1) % 8 + 1)); idx++; }
-      return colorMap.get(pid);
-    };
-
-    const unitWidth = 44;
+    if (timeline.length === 0) {
+      ganttChart.innerHTML = `<div class="text-muted">No timeline generated</div>`;
+      return;
+    }
     timeline.forEach(seg => {
-      const width = Math.max(32, (seg.end - seg.start) * unitWidth);
-      const block = create("div", { className: "block " + colorFor(seg.pid), innerText: "P" + seg.pid });
-      block.style.minWidth = width + "px";
-      block.appendChild(create("div", { className: "tick", innerText: seg.end }));
+      const block = create("div", { className: "d-inline-block border rounded text-center p-2 m-1 bg-primary text-white" });
+      block.style.minWidth = (seg.end - seg.start) * 40 + "px";
+      block.innerText = "P" + seg.pid + ` (${seg.start}-${seg.end})`;
       ganttChart.appendChild(block);
     });
   }
 
   function renderMetrics(completed) {
-    if (completed.length === 0) { [avgTAT, avgWT, throughput].forEach(i => i.value = "0"); return; }
     const totalTAT = completed.reduce((s, p) => s + p.turnAroundTime, 0);
     const totalWT = completed.reduce((s, p) => s + p.waitingTime, 0);
     const maxCT = Math.max(...completed.map(p => p.completedTime));
@@ -317,16 +141,100 @@
     throughput.value = (completed.length / maxCT).toFixed(2);
   }
 
-  // ---------- Utils ----------
-  function mergeTimeline(tl) {
-    const merged = [];
-    for (const seg of tl) {
-      const last = merged[merged.length - 1];
-      if (last && last.pid === seg.pid && last.end === seg.start) last.end = seg.end;
-      else merged.push({ ...seg });
-    }
-    return merged;
+  function clearOutputs() {
+    tblResultsBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No results yet</td></tr>`;
+    ganttChart.innerHTML = "";
+    avgTAT.value = "";
+    avgWT.value = "";
+    throughput.value = "";
   }
-  function copyList(list) { return list.map(p => ({ ...p })); }
 
+  // --- Utils ---
+  const copy = arr => arr.map(p => ({ ...p }));
+
+  // --- Algorithms ---
+  function runFCFS(list) {
+    list.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    let time = 0, completed = [], timeline = [];
+    for (let p of list) {
+      if (time < p.arrivalTime) time = p.arrivalTime;
+      const start = time;
+      time += p.burstTime;
+      const end = time;
+      completed.push({ ...p, completedTime: end, turnAroundTime: end - p.arrivalTime, waitingTime: (end - p.arrivalTime) - p.burstTime });
+      timeline.push({ pid: p.processID, start, end });
+    }
+    return { completed, timeline };
+  }
+
+  function runSJF(list) {
+    let time = 0, completed = [], timeline = [], ready = [];
+    list.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    while (list.length || ready.length) {
+      while (list.length && list[0].arrivalTime <= time) ready.push(list.shift());
+      if (!ready.length) { time = list[0].arrivalTime; continue; }
+      ready.sort((a, b) => a.burstTime - b.burstTime);
+      const p = ready.shift();
+      const start = time;
+      time += p.burstTime;
+      const end = time;
+      completed.push({ ...p, completedTime: end, turnAroundTime: end - p.arrivalTime, waitingTime: (end - p.arrivalTime) - p.burstTime });
+      timeline.push({ pid: p.processID, start, end });
+    }
+    return { completed, timeline };
+  }
+
+  function runSRTF(list) {
+    let time = 0, completed = [], timeline = [], ready = [];
+    list = list.map(p => ({ ...p, rem: p.burstTime }));
+    list.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    let current = null, lastStart = 0;
+    while (list.length || ready.length || current) {
+      while (list.length && list[0].arrivalTime <= time) ready.push(list.shift());
+      if (!current) {
+        if (!ready.length) { time = list[0].arrivalTime; continue; }
+        ready.sort((a, b) => a.rem - b.rem);
+        current = ready.shift();
+        lastStart = time;
+      }
+      current.rem--; time++;
+      if (current.rem === 0) {
+        completed.push({ ...current, completedTime: time, turnAroundTime: time - current.arrivalTime, waitingTime: (time - current.arrivalTime) - current.burstTime });
+        timeline.push({ pid: current.processID, start: lastStart, end: time });
+        current = null;
+      } else {
+        while (list.length && list[0].arrivalTime <= time) ready.push(list.shift());
+        if (ready.length && ready.some(p => p.rem < current.rem)) {
+          timeline.push({ pid: current.processID, start: lastStart, end: time });
+          ready.push(current);
+          current = null;
+        }
+      }
+    }
+    return { completed, timeline };
+  }
+
+  function runRR(list, tq) {
+    let time = 0, completed = [], timeline = [], ready = [];
+    list = list.map(p => ({ ...p, rem: p.burstTime }));
+    list.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    while (list.length || ready.length) {
+      while (list.length && list[0].arrivalTime <= time) ready.push(list.shift());
+      if (!ready.length) { time = list[0].arrivalTime; continue; }
+      const p = ready.shift();
+      const exec = Math.min(tq, p.rem);
+      const start = time;
+      time += exec;
+      const end = time;
+      p.rem -= exec;
+      timeline.push({ pid: p.processID, start, end });
+      if (p.rem === 0) {
+        completed.push({ ...p, completedTime: end, turnAroundTime: end - p.arrivalTime, waitingTime: (end - p.arrivalTime) - p.burstTime });
+      } else {
+        while (list.length && list[0].arrivalTime <= time) ready.push(list.shift());
+        ready.push(p);
+      }
+    }
+    return { completed, timeline };
+  }
 })();
