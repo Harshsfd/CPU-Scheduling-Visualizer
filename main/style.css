@@ -23,8 +23,8 @@
 /* Dark mode tokens */
 body.dark{
   --bg: #0b1020;
-  --card: white;
-  --text: white;
+  --card: #1f2937;
+  --text: #ffffff;
   --muted:#a5adbb;
   --primary:#60a5fa;
   --primary-600:#3b82f6;
@@ -32,7 +32,7 @@ body.dark{
   --success:#22c55e;
   --danger:#ef4444;
   --warning:#fbbf24;
-  --border:#1f2940;
+  --border:#374151;
   --shadow: 0 12px 30px rgba(0,0,0,.45);
   --glass: rgba(18,25,49,.85);
 }
@@ -88,7 +88,10 @@ body{
 }
 
 /* Headings / text */
-h2.h5{ color: var(--text); }
+h2.h5, h3.h6, .card-title,
+label, .form-label {
+  color: var(--text);
+}
 .form-text{ color: var(--muted); }
 
 /* =========================
@@ -102,9 +105,11 @@ h2.h5{ color: var(--text); }
   transition: border-color .2s ease, box-shadow .2s ease, background .3s ease, color .3s ease;
   color: var(--text);
 }
-body.dark .form-control, body.dark .form-select{
+body.dark .form-control, 
+body.dark .form-select{
   background: #0f152b;
   border-color: var(--border);
+  color: #ffffff;
 }
 
 .form-control:focus, .form-select:focus{
@@ -180,7 +185,7 @@ body.dark .form-control, body.dark .form-select{
   background-color: rgba(15, 23, 42, 0.03);
 }
 body.dark .table-striped tbody tr:nth-of-type(odd){
-  background-color: rgba(255,255,255,.02);
+  background-color: rgba(255,255,255,.05);
 }
 .table-hover tbody tr:hover{
   background-color: rgba(37,99,235,.09);
@@ -210,6 +215,12 @@ body.dark .table-striped tbody tr:nth-of-type(odd){
   background: rgba(37,99,235,.06);
   border: 1px dashed var(--primary-600);
   color: var(--text);
+}
+body.dark #avgTurnaroundTime, 
+body.dark #avgWaitingTime, 
+body.dark #throughput {
+  color: #ffffff;
+  background: rgba(96,165,250,.12);
 }
 
 /* =========================
@@ -251,7 +262,6 @@ body.dark .table-striped tbody tr:nth-of-type(odd){
   user-select: none;
   transform: translateY(4px);
   opacity: 0;
-  /* JS adds transition and animates in; keep base for reduced-motion */
 }
 .gantt-block small{
   display: block;
@@ -283,6 +293,10 @@ body.dark .gantt-block{
 ========================= */
 footer{
   border-top: 1px solid var(--border);
+  color: var(--text);
+}
+body.dark footer{
+  color: #ffffff;
 }
 
 /* =========================
@@ -291,7 +305,6 @@ footer{
 hr{ border-color: var(--border); opacity:.6; }
 
 .bg-gradient{
-  /* fallback if not Bootstrap gradient */
   background: linear-gradient(135deg, var(--primary-700), var(--primary)) !important;
 }
 
@@ -300,7 +313,6 @@ hr{ border-color: var(--border); opacity:.6; }
   border-radius:12px;
 }
 
-/* Focus ring color harmonized */
 :focus-visible{
   outline: 3px solid rgba(37,99,235,.35);
   outline-offset: 2px;
@@ -333,6 +345,6 @@ hr{ border-color: var(--border); opacity:.6; }
 ========================= */
 @media (prefers-color-scheme: dark){
   :root:not(.force-light) body:not(.force-light){
-    /* theme toggled by body.dark already; this just smooths first paint */
+    /* theme toggled by body.dark already */
   }
 }
