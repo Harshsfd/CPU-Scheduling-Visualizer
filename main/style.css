@@ -1,25 +1,70 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;700&display=swap');
 
+:root {
+  --primary: #2980b9;
+  --secondary: #27ae60;
+  --danger: #e74c3c;
+  --bg-light: #f8f9fa;
+  --text-dark: #2c3e50;
+  --text-light: #ecf0f1;
+}
+
 body {
   font-family: 'Nunito', sans-serif;
-  background-color: #f8f9fa;
-  transition: background 0.3s, color 0.3s;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  transition: all 0.4s ease;
+  margin: 0;
+  padding: 0;
 }
 
 h3, h5, label {
   font-weight: 700;
+  margin-bottom: 8px;
 }
 
 .card {
-  border-radius: 12px;
+  border-radius: 15px;
+  padding: 20px;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
 }
 
 .table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th {
+  background: var(--primary);
+  color: #fff;
   font-size: 0.95rem;
+  text-align: center;
+}
+
+.table td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 .table-hover tbody tr:hover {
-  background-color: rgba(52, 152, 219, 0.15);
+  background-color: rgba(41, 128, 185, 0.15);
+}
+
+.btn {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: scale(1.05);
 }
 
 #btnCalculate {
@@ -27,45 +72,59 @@ h3, h5, label {
   font-size: 20px;
   border: none;
   padding: 12px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
 }
 
 #btnCalculate:hover {
   background-color: #1f6fb2;
-  transform: translateY(-2px);
 }
 
 #resetBtn {
   font-size: 16px;
   padding: 10px;
+  background: var(--danger);
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+}
+
+#resetBtn:hover {
+  background: #c0392b;
 }
 
 #ganttChart {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: 6px;
-  margin-top: 15px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .gantt-block {
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 10px 15px;
+  border-radius: 8px;
   color: #fff;
   font-weight: bold;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  min-width: 60px;
   text-align: center;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .gantt-block small {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.9;
+  margin-top: 4px;
+}
+
+.gantt-block:hover {
+  transform: translateY(-3px);
 }
 
 /* 🎨 Random colors for processes */
@@ -78,43 +137,51 @@ h3, h5, label {
 .color-6 { background: #f39c12; }
 .color-7 { background: #2c3e50; }
 
-/* 🔄 Dark Mode */
+/* 🌙 Dark Mode */
 body.dark {
-  background-color: #121212;
-  color: #e0e0e0;
+  background: #121212;
+  color: var(--text-light);
 }
 
 body.dark .card {
-  background: #1f1f1f;
-  color: #e0e0e0;
+  background: rgba(30,30,30,0.85);
+  color: var(--text-light);
 }
 
 body.dark .navbar {
-  background: #222 !important;
+  background: #1c1c1c !important;
 }
 
 body.dark .table {
-  color: #e0e0e0;
+  color: var(--text-light);
+}
+
+body.dark .table th {
+  background: #3498db;
 }
 
 body.dark #btnCalculate {
-  background-color: #3498db;
+  background: #3498db;
 }
 
-body.dark .page-footer {
-  background-color: #000;
+body.dark #resetBtn {
+  background: #e74c3c;
+}
+
+body.dark .gantt-block {
+  box-shadow: 0px 4px 15px rgba(255,255,255,0.1);
 }
 
 /* 📱 Responsive */
 @media (max-width: 768px) {
   #btnCalculate {
-    font-size: 16px;
+    font-size: 18px;
     padding: 10px;
   }
 
   .gantt-block {
     font-size: 12px;
-    padding: 6px 10px;
+    padding: 8px 12px;
   }
 }
 
@@ -126,6 +193,10 @@ body.dark .page-footer {
 
   .gantt-block {
     font-size: 11px;
-    padding: 5px 8px;
+    padding: 6px 10px;
+  }
+
+  .card {
+    padding: 15px;
   }
 }
