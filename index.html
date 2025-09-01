@@ -25,25 +25,25 @@
       color: #222;
       padding: 30px;
       border-radius: 15px;
-      box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0px 6px 30px rgba(0,0,0,0.4);
       text-align: center;
     }
 
     #logo {
-      max-width: 160px;
-      max-height: 80px;
+      max-width: 160px;   /* responsive width */
+      max-height: 80px;   /* fix height */
       margin-bottom: 15px;
-      object-fit: contain;
+      object-fit: contain; /* avoid stretching */
     }
 
     h1 {
       font-weight: 700;
       margin-bottom: 25px;
-      font-size: clamp(1.5rem, 4vw, 2.2rem); /* responsive font */
+      font-size: clamp(1.5rem, 4vw, 2.2rem); /* responsive font size */
     }
 
     table {
-      word-break: break-word; /* prevents overflow */
+      word-break: break-word; /* prevent text overflow */
     }
 
     table th {
@@ -87,7 +87,7 @@
     }
 
     footer h4 {
-      font-size: clamp(1rem, 3vw, 1.4rem); /* responsive footer text */
+      font-size: clamp(1rem, 3vw, 1.4rem);
       margin: 0;
     }
 
@@ -111,10 +111,14 @@
 </head>
 <body>
   <div class="container">
-    <img src="main/Siet_logo.PNG" id="logo" alt="logo" class="img-fluid">
+    <!-- College Logo -->
+    <img src="main/Siet_logo.PNG" id="logo" alt="logo" class="img-fluid d-block mx-auto">
+
+    <!-- Title -->
     <h1>OS Scheduling Algorithms</h1>
 
-    <div class="table-responsive"> <!-- ✅ Makes table scrollable on small devices -->
+    <!-- Table -->
+    <div class="table-responsive">
       <table class="table table-bordered mb-4">
         <thead>
           <tr>
@@ -135,11 +139,13 @@
       </table>
     </div>
 
+    <!-- Button -->
     <button class="btn btn-primary" onclick="window.location='main/main.html'">
       🚀 Click Here to Proceed
     </button>
   </div>
 
+  <!-- Footer -->
   <footer>
     <a href="https://www.linkedin.com/in/harshsfd" target="_blank">
       <h4>HARSHSFD</h4>
