@@ -8,9 +8,6 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;700&display=swap" rel="stylesheet">
-
-  <!-- ❌ NO favicon here (removed the green "e") -->
-
   <style>
     body {
       background: linear-gradient(135deg, #3498db, #2c3e50);
@@ -20,6 +17,7 @@
       display: flex;
       flex-direction: column;
     }
+
     .container {
       max-width: 900px;
       margin: auto;
@@ -27,45 +25,123 @@
       color: #222;
       padding: 30px;
       border-radius: 15px;
-      box-shadow: 0px 6px 30px rgba(0,0,0,0.4);
+      box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.4);
       text-align: center;
     }
-    #logo { max-width: 140px; margin-bottom: 20px; }
-    h1 { font-weight: 700; margin-bottom: 25px; }
-    table th { background: #2980b9; color: #fff; }
-    table td { background: #3498db; color: #fff; }
-    .btn-primary {
-      background: #27ae60; border: none; padding: 12px 30px;
-      border-radius: 8px; font-weight: bold;
+
+    #logo {
+      max-width: 140px;
+      margin-bottom: 20px;
     }
-    .btn-primary:hover { background: #219653; transform: scale(1.05); }
-    footer { margin-top: auto; text-align: center; padding: 15px; }
-    footer a { color: #fff; text-decoration: none; }
+
+    h1 {
+      font-weight: 700;
+      margin-bottom: 25px;
+      font-size: clamp(1.5rem, 4vw, 2.2rem); /* responsive font */
+    }
+
+    table {
+      word-break: break-word; /* prevents overflow */
+    }
+
+    table th {
+      background: #2980b9;
+      color: #fff;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    table td {
+      background: #3498db;
+      color: #fff;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: #27ae60;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn-primary:hover {
+      background: #219653;
+      transform: scale(1.05);
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 15px;
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    footer h4 {
+      font-size: clamp(1rem, 3vw, 1.4rem); /* responsive footer text */
+      margin: 0;
+    }
+
+    /* 📱 Mobile tweaks */
+    @media (max-width: 576px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      table th,
+      table td {
+        font-size: 0.8rem;
+        padding: 6px;
+      }
+
+      .btn-primary {
+        width: 100%; /* full width button on small screens */
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="main/Siet_logo.PNG" id="logo" alt="logo">
+    <img src="main/Siet_logo.PNG" id="logo" alt="logo" class="img-fluid">
     <h1>OS Scheduling Algorithms</h1>
-    <table class="table table-bordered mb-4">
-      <thead>
-        <tr>
-          <th>Name</th><th>Group No.</th><th>College Roll No.</th><th>University Roll No.</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Harsh Bhardwaj</td>
-          <td>6th</td>
-          <td>87225106</td>
-          <td>2021217473</td>
-        </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-primary" onclick="window.location='main/main.html'">🚀 Click Here to Proceed</button>
+
+    <div class="table-responsive"> <!-- ✅ Makes table scrollable on small devices -->
+      <table class="table table-bordered mb-4">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Group No.</th>
+            <th>College Roll No.</th>
+            <th>University Roll No.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Harsh Bhardwaj</td>
+            <td>6th</td>
+            <td>87225106</td>
+            <td>2021217473</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-primary" onclick="window.location='main/main.html'">
+      🚀 Click Here to Proceed
+    </button>
   </div>
+
   <footer>
-    <a href="https://www.linkedin.com/in/harshsfd" target="_blank"><h4>HARSHSFD</h4></a>
+    <a href="https://www.linkedin.com/in/harshsfd" target="_blank">
+      <h4>HARSHSFD</h4>
+    </a>
   </footer>
 </body>
 </html>
